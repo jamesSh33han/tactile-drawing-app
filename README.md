@@ -11,7 +11,7 @@ To install the application and connect it to your inTACT Tactile Sketchpad, the 
 Once the driver is downloaded and the inTACT sketchpad is connected to your PC via a USB connection, you should see the device listed in the Wacom Driver software. Once this connection has been established, run the inTACT Sketchpad Application. 
 
 ### Software Features
-![Alt text](../images/appOverview.png?raw=true "App Overview")
+![Alt text](../appOverview.png?raw=true "App Overview")
 
 ### API References
 
