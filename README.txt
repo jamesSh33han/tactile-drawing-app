@@ -1,2 +1,0 @@
-InTact Sketchpad Application
-# Hello
