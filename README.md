@@ -13,7 +13,7 @@ Once the driver is downloaded and the inTACT sketchpad is connected to your PC v
 ### Software Features
 <img width="1788" alt="appOverview" src="https://user-images.githubusercontent.com/73210026/164055537-de956810-5af1-4f5b-af24-01ec23dc088f.png">
 Drawing Functions:
-- **Open File:** Allows a user to choose a file on their PC to upload into the drawing application. The file will populate the digital canvas once uploaded and can be digitally edited.
+- Open File: Allows a user to choose a file on their PC to upload into the drawing application. The file will populate the digital canvas once uploaded and can be digitally edited.
 - **Save & Download File:** Allows the user to save and download the digital image to their personal computer. Allows images to be saved as .PNG or .SVG filetypes.
 - **Delete Image:** 
 - **Toggle Line Thickness:** 
