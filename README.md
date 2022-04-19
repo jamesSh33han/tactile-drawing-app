@@ -12,6 +12,15 @@ Once the driver is downloaded and the inTACT sketchpad is connected to your PC v
 
 ### Software Features
 <img width="1788" alt="appOverview" src="https://user-images.githubusercontent.com/73210026/164055537-de956810-5af1-4f5b-af24-01ec23dc088f.png">
+Drawing Functions:
+- **Open File:** Allows a user to choose a file on their PC to upload into the drawing application. The file will populate the digital canvas once uploaded and can be digitally edited.
+- **Save & Download File:** Allows the user to save and download the digital image to their personal computer. Allows images to be saved as .PNG or .SVG filetypes.
+- **Delete Image:** 
+- **Toggle Line Thickness:** 
+- **Mirror Image:**
+- **Translate Image:**
 
 ### API References
-
+- Artyom Voice Recognition: https://docs.ourcodeworld.com/projects/artyom-js
+- HTML Canvas: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API
+- Google Material Icon Library: https://fonts.google.com/icons
