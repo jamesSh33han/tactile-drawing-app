@@ -310,7 +310,7 @@ function DeleteImage() {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); //clear html5 canvas
     document.location.reload();
     // using artyom to speak aloud
-    artyom.say("Deleting Current Image");
+    artyom.say("Deleting Image");
 }
 
 // Function to translate the selected image to a new position on the canvas
@@ -322,7 +322,7 @@ function translateImage() {
     ctx.translate(centerX, 0);
     ctx.drawImage(canvasImage,0,0);
     ctx.restore(); // restore the state as it was when this function was called
-    artyom.say("Translating Current Image");
+    artyom.say("Translating Image");
 }
 
 // Function to download the current canvas object as a png image
@@ -342,7 +342,7 @@ function downloadCanvasAsImage(){
     };
     xhr.open('GET', canvasImage); // This is to download the canvas Image
     xhr.send();
-    artyom.say("Saving and Downloading the Current Image");
+    artyom.say("Downloading Image");
 }
 
 // Function to act as a key listener
