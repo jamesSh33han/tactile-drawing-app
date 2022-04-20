@@ -257,7 +257,7 @@ function ReactToMouseUp(e){
 }
 
 // Defining labels to represent line thickness and the current index value
-var labels = [ "Thick", "Medium", "Thin" ];
+var labels = [ "Thick", "Medium", "Thin"];
 var index = 0;
 // Defining function changeThickness: when clicked will toggle between three predefined line thicknesses (Initial, Thin, Thick)
 // Utilizes artyom to verbally alert the user to which slider option they have currently selected
@@ -296,13 +296,22 @@ function mirrorImage(ctx, image, x = 0, y = 0, horizontal = false, vertical = fa
     ctx.restore(); // restore the state as it was when this function was called
 }
 
-// Function that is called when user clicks button to flip drawing horizontally
-function flipHorizontally() {
+// Function that is called when user clicks button to flip drawing vertically
+function flipVertically() {
     let canvasImage = document.getElementById("my-canvas");
     // call mirrorImage() function above to transform canvas
     mirrorImage(ctx, canvasImage, 0, 0, false, true); // vertical mirror
     // using artyom to speak aloud
-    artyom.say("Mirroring Image");
+    artyom.say("Mirroring Vertically");
+}
+
+// Function that is called when user clicks button to flip drawing horizontally
+function flipHorizontally() {
+    let canvasImage = document.getElementById("my-canvas");
+    // call mirrorImage() function above to transform canvas
+    mirrorImage(ctx, canvasImage, 0, 0, true, false); // horizontal mirror
+    // using artyom to speak aloud
+    artyom.say("Mirroring Horizontally");
 }
 
 // Function to verbally alert the user that they are "Deleting" the current image
@@ -314,12 +323,10 @@ function DeleteImage() {
 }
 
 // Function to translate the selected image to a new position on the canvas
-function translateImage() {
+function translateImage(x, y) {
     let canvasImage = document.getElementById("my-canvas");
     ctx.save();
-    const centerX = canvas.width / 3;
-    const centerY = canvas.height / 3;
-    ctx.translate(centerX, 0);
+    ctx.translate(x, y);
     ctx.drawImage(canvasImage,0,0);
     ctx.restore(); // restore the state as it was when this function was called
     artyom.say("Translating Image");
@@ -334,7 +341,7 @@ function downloadCanvasAsImage(){
     xhr.onload = function () {
         let a = document.createElement('a');
         a.href = window.URL.createObjectURL(xhr.response);
-        a.download = 'image_name.png';
+        a.download = 'drawing.png';
         a.style.display = 'none';
         document.body.appendChild(a);
         a.click();
@@ -343,6 +350,15 @@ function downloadCanvasAsImage(){
     xhr.open('GET', canvasImage); // This is to download the canvas Image
     xhr.send();
     artyom.say("Downloading Image");
+}
+
+function canvasToSVG() {
+    let canvasImage = document.getElementById("my-canvas");
+    ctx.save();
+    ctx = new SVGCanvas("my-canvas");
+    ctx.drawImage(canvasImage);
+    canvasSVG = ctx.toDataURL("image/svg+xml");
+
 }
 
 // Function to act as a key listener
@@ -354,29 +370,34 @@ document.onkeydown = function (e) {
     let chr = String.fromCharCode((96 <= keyCode) ? chrCode: keyCode);
 
     // if statements to reflect different wacom button key assignments
-    if (chr == 'G') {
-        // if the g key is pressed (mapped to the bottom Wacom button) save and 
+    if (chr == 'F') {
+        // if the F key is pressed (mapped to the bottom Wacom button) save and 
         // download the current canvas image
         downloadCanvasAsImage();
     }
-    else if (chr == 'H') {
-        // if the h key is pressed (mapped to the 2nd from bottom Wacom button)
+    else if (chr == 'G') {
+        // if the G key is pressed (mapped to the 2nd from bottom Wacom button)
         // delete the current canvas image
         DeleteImage();
     }
-    else if (chr == 'J') {
-        // if the j key is pressed (mapped to the 3rd from bottom Wacom button)
+    else if (chr == 'H') {
+        // if the H key is pressed (mapped to the 3rd from bottom Wacom button)
         // toggle the line thickness from Thick to Medium to Thin
         changeThickness();
     }
+    else if (chr == 'J') {
+        // if the J key is pressed (mapped to the 4th from bottom Wacom button)
+        // Mirror the current image over the Vertical axis
+        flipVertically();
+    }
     else if (chr == 'K') {
-        // if the k key is pressed (mapped to the 4th from bottom Wacom button)
-        // Mirror the current image
+        // if the K key is pressed (mapped to the 5th from bottom Wacom button)
+        // Mirror the current image over the Horizontal axis
         flipHorizontally();
     }
     else if (chr == 'L') {
-        // if the k key is pressed (mapped to the 4th from bottom Wacom button)
-        // Mirror the current image
+        // if the L key is pressed (mapped to the 6th from bottom Wacom button)
+        // Translate the current image to the user-specified point
         translateImage();
     }
 
