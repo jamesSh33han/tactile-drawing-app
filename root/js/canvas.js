@@ -326,21 +326,30 @@ function DeleteImage() {
 // the x & y coordinates of the next mouse click, which the current image will then 
 // be translated too
 function getTranslateCoordinates() {
-    document.addEventListener('click', translateImage, true);
+    let canvasImage = document.getElementById("my-canvas");
+    canvasImage.addEventListener("click", function(e)
+    {
+        translateImage(canvasImage, e);
+    });
+    canvasImage.removeEventListener("click");
 }
 
 // ------- **** NEEDS TO BE FIXED **** --------
 // Function to translate the current image to the user-specified coordinates
-function translateImage(e) {
-    let canvasImage = document.getElementById("my-canvas");
+function translateImage(canvas, event) {
     ctx.save();
     // define x & y coordinates of users click
     // this implementation works, but because of the canvas and other elements the
     // coordinates do not much up exactly to the mouse click like they should
-    var xPos = e.pageX/2.5;
-    var yPos = e.pageY/2.5;
-    ctx.translate(xPos, yPos);
-    ctx.drawImage(canvasImage,0,0);
+    // var xPos = e.pageX/2.5;
+    // var yPos = e.pageY/2.5;
+    //ctx.translate(xPos, yPos);
+
+    let rect = canvas.getBoundingClientRect();
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
+    ctx.translate(x, y);
+    ctx.drawImage(canvas,0,0);
     ctx.restore(); // restore the state as it was when this function was called
     artyom.say("Translating Image");
 }
@@ -376,6 +385,27 @@ function canvasToSVG() {
     canvasSVG = ctx.toDataURL("image/svg+xml");
 
 }
+
+function test() {
+    let translateCanvas = document.getElementById("my-canvas");
+    ctx.save();
+    translateCanvas.onclick = function(e) {
+        // define x & y coordinates of users click
+        // this implementation works, but because of the canvas and other elements the
+        // coordinates do not much up exactly to the mouse click like they should
+        let rect = translateCanvas.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+        ctx.translate(x, y);
+        ctx.drawImage(translateCanvas,0,0);
+        ctx.restore(); // restore the state as it was when this function was called
+        artyom.say("Translating Image");
+    }
+}
+
+
+
+
 
 // Function to act as a key listener
 // Will constantly keep track of the value associated with the most recent character key that was pressed
