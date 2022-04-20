@@ -322,11 +322,24 @@ function DeleteImage() {
     artyom.say("Deleting Image");
 }
 
-// Function to translate the selected image to a new position on the canvas
-function translateImage(x, y) {
+// function that is called when user selects translate button, starts listening for
+// the x & y coordinates of the next mouse click, which the current image will then 
+// be translated too
+function getTranslateCoordinates() {
+    document.addEventListener('click', translateImage, true);
+}
+
+// ------- **** NEEDS TO BE FIXED **** --------
+// Function to translate the current image to the user-specified coordinates
+function translateImage(e) {
     let canvasImage = document.getElementById("my-canvas");
     ctx.save();
-    ctx.translate(x, y);
+    // define x & y coordinates of users click
+    // this implementation works, but because of the canvas and other elements the
+    // coordinates do not much up exactly to the mouse click like they should
+    var xPos = e.pageX/2.5;
+    var yPos = e.pageY/2.5;
+    ctx.translate(xPos, yPos);
     ctx.drawImage(canvasImage,0,0);
     ctx.restore(); // restore the state as it was when this function was called
     artyom.say("Translating Image");
@@ -352,6 +365,9 @@ function downloadCanvasAsImage(){
     artyom.say("Downloading Image");
 }
 
+// ------- **** NEEDS TO BE FIXED **** --------
+// Function to convert canvas image to SVG and output the result to the user
+// Utilizes svgcanvas.js & the creation of a new SVGCanvas()
 function canvasToSVG() {
     let canvasImage = document.getElementById("my-canvas");
     ctx.save();
