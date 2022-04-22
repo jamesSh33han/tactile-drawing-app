@@ -141,33 +141,9 @@ function drawRubberbandShape(loc){
     if(currentTool === "brush"){
         // Create paint brush
         DrawBrush();
-    } else if(currentTool === "line"){
-        // Draw Line
-        ctx.beginPath();
-        ctx.moveTo(mousedown.x, mousedown.y);
-        ctx.lineTo(loc.x, loc.y);
-        ctx.stroke();
-    } else if(currentTool === "rectangle"){
-        // Creates rectangles
-        ctx.strokeRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height);
-    } else if(currentTool === "circle"){
-        // Create circles
-        let radius = shapeBoundingBox.width;
-        ctx.beginPath();
-        ctx.arc(mousedown.x, mousedown.y, radius, 0, Math.PI * 2);
-        ctx.stroke();
-    } else if(currentTool === "ellipse"){
-        // Create ellipses
-        // ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle)
-        let radiusX = shapeBoundingBox.width / 2;
-        let radiusY = shapeBoundingBox.height / 2;
-        ctx.beginPath();
-        ctx.ellipse(mousedown.x, mousedown.y, radiusX, radiusY, Math.PI / 4, 0, Math.PI * 2);
-        ctx.stroke();
-    } else if(currentTool === "polygon"){
-        // Create polygons
-        getPolygon();
-        ctx.stroke();
+    } else if(currentTool === "eraser"){
+        // Create paint brush
+        EraserBrush();
     }
 }
 
@@ -206,6 +182,27 @@ function DrawBrush(){
         ctx.stroke();
     }
 }
+
+// Cycle through all eraser points and connect them with lines
+function EraserBrush(){
+    let currentTool = 'eraser';
+    let strokeColor = 'white';
+    let fillColor = 'white';
+    for(let i = 1; i < brushXPoints.length; i++){
+        ctx.beginPath();
+ 
+        // Check if the mouse button was down at this point
+        // and if so continue drawing
+        if(brushDownPos[i]){
+            ctx.moveTo(brushXPoints[i-1], brushYPoints[i-1]);
+        } else {
+            ctx.moveTo(brushXPoints[i]-1, brushYPoints[i]);
+        }
+        ctx.lineTo(brushXPoints[i], brushYPoints[i]);
+        ctx.closePath();
+        ctx.stroke();
+    }
+}
  
 function ReactToMouseDown(e){
     // Change the mouse pointer to a crosshair
@@ -224,6 +221,13 @@ function ReactToMouseDown(e){
     if(currentTool === 'brush'){
         usingBrush = true;
         AddBrushPoint(loc.x, loc.y);
+    } 
+    
+    // Eraser will also store points in an array
+    else if (currentTool === "eraser") {
+        // Create eraser brush
+        usingBrush = true;
+        AddBrushPoint(loc.x, loc.y);
     }
 }
  
@@ -239,6 +243,13 @@ function ReactToMouseMove(e){
         }
         RedrawCanvasImage();
         DrawBrush();
+    } else if(currentTool === 'eraser' && dragging && usingBrush){
+        // Throw away brush drawings that occur outside of the canvas
+        if(loc.x > 0 && loc.x < canvasWidth && loc.y > 0 && loc.y < canvasHeight){
+            AddBrushPoint(loc.x, loc.y, true);
+        }
+        RedrawCanvasImage();
+        EraserBrush();
     } else {
         if(dragging){
             RedrawCanvasImage();
@@ -284,6 +295,7 @@ function changeThickness() {
 
 // Function to allow us to complete mirror transformations using the current canvas image
 // Can mirror an image horizontally, vertically, or both
+// this function is called in both the flipVertically() & flipHorizontally()
 function mirrorImage(ctx, image, x = 0, y = 0, horizontal = false, vertical = false){
     ctx.save();  // save the current canvas state
     ctx.setTransform(
@@ -296,7 +308,7 @@ function mirrorImage(ctx, image, x = 0, y = 0, horizontal = false, vertical = fa
     ctx.restore(); // restore the state as it was when this function was called
 }
 
-// Function that is called when user clicks button to flip drawing vertically
+// Function to mirror canvas drawing over the vertical axis
 function flipVertically() {
     let canvasImage = document.getElementById("my-canvas");
     // call mirrorImage() function above to transform canvas
@@ -305,7 +317,7 @@ function flipVertically() {
     artyom.say("Mirroring Vertically");
 }
 
-// Function that is called when user clicks button to flip drawing horizontally
+// Function to mirror canvas drawing over the horizontal axis
 function flipHorizontally() {
     let canvasImage = document.getElementById("my-canvas");
     // call mirrorImage() function above to transform canvas
@@ -314,7 +326,7 @@ function flipHorizontally() {
     artyom.say("Mirroring Horizontally");
 }
 
-// Function to verbally alert the user that they are "Deleting" the current image
+// Function to clear the entire canvas element when called, verbally alerts the user to change in drawing
 function DeleteImage() {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); //clear html5 canvas
     document.location.reload();
@@ -351,11 +363,13 @@ function canvasToSVG() {
     ctx = new SVGCanvas("my-canvas");
     ctx.drawImage(canvasImage);
     canvasSVG = ctx.toDataURL("image/svg+xml");
-
 }
 
 // Function to translate canvas image to a user-specified point
 // ------- **** NEEDS TO BE FIXED **** --------
+// 1. when the function is called to translate the drawn image it does not translate 
+// exactly to the users input coordinates, rather a point close to the expected translation
+// - issue resides in the xPos and yPos calculation from the HTML body and canvas element
 function translateImage() {
     let translateCanvas = document.getElementById("my-canvas");
     let context = translateCanvas.getContext('2d');

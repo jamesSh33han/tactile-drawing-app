@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=4.0">
-        <title>Tactile Drawing App</title>
+        <title>inTACT Drawing App</title>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/css-toggle-switch/latest/toggle-switch.css" rel="stylesheet" />
         <link rel="stylesheet" type="text/css" href="./css/menu.css">
@@ -28,19 +28,22 @@
     <body>
         <div class="wrapper">
             <div class="menu">
-                <a href="#" class="menu__item" id="imageInput" onclick="canvasToSVG()" data-tooltip="Open File">
+                <a href="#" class="menu__item" id="imageInput" onclick="canvasToSVG()" data-tooltip="Load File">
                     <i class="material-icons">cloud_upload</i>
                 </a>
-                <a href="#" class="menu__item" id="save" onclick="downloadCanvasAsImage()" data-tooltip="Save & Download">
+                <a href="#" class="menu__item" id="save" onclick="downloadCanvasAsImage()" data-tooltip="Download">
                     <i class="material-icons">save_as</i>
                 </a>
-                <a href="#" class="menu__item menu__item--active" id="brush" data-tooltip="Active Draw">
+                <a href="#" class="menu__item menu__item--active" id="brush" data-tooltip="Draw">
                     <i class="material-icons">brush</i>
                 </a>
-                <a href="./" class="menu__item" onclick="DeleteImage()" data-tooltip="Delete Image">
+                <a href="#" class="menu__item" id="eraser" onclick="EraserBrush()" data-tooltip="Erase">
+                    <i class="material-icons">backspace</i>
+                </a>
+                <a href="./" class="menu__item" onclick="DeleteImage()" data-tooltip="Delete">
                     <i class="material-icons">delete</i>
                 </a>
-                <a href="#" class="menu__item" id="changeThickness" onclick="changeThickness()" data-tooltip="Toggle Thickness">
+                <a href="#" class="menu__item" id="changeThickness" onclick="changeThickness()" data-tooltip="Toggle Line Thickness">
                     <i class="material-icons">line_weight</i>
                 </a>
                 <a href="#" class="menu__item" id="transform" onclick="flipVertically()" data-tooltip="Vertical Mirror">
