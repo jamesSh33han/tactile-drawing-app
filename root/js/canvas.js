@@ -141,9 +141,6 @@ function drawRubberbandShape(loc){
     if(currentTool === "brush"){
         // Create paint brush
         DrawBrush();
-    } else if(currentTool === "eraser"){
-        // Create paint brush
-        EraserBrush();
     }
 }
 
@@ -182,27 +179,6 @@ function DrawBrush(){
         ctx.stroke();
     }
 }
-
-// Cycle through all eraser points and connect them with lines
-function EraserBrush(){
-    let currentTool = 'eraser';
-    let strokeColor = 'white';
-    let fillColor = 'white';
-    for(let i = 1; i < brushXPoints.length; i++){
-        ctx.beginPath();
- 
-        // Check if the mouse button was down at this point
-        // and if so continue drawing
-        if(brushDownPos[i]){
-            ctx.moveTo(brushXPoints[i-1], brushYPoints[i-1]);
-        } else {
-            ctx.moveTo(brushXPoints[i]-1, brushYPoints[i]);
-        }
-        ctx.lineTo(brushXPoints[i], brushYPoints[i]);
-        ctx.closePath();
-        ctx.stroke();
-    }
-}
  
 function ReactToMouseDown(e){
     // Change the mouse pointer to a crosshair
@@ -221,13 +197,6 @@ function ReactToMouseDown(e){
     if(currentTool === 'brush'){
         usingBrush = true;
         AddBrushPoint(loc.x, loc.y);
-    } 
-    
-    // Eraser will also store points in an array
-    else if (currentTool === "eraser") {
-        // Create eraser brush
-        usingBrush = true;
-        AddBrushPoint(loc.x, loc.y);
     }
 }
  
@@ -243,13 +212,6 @@ function ReactToMouseMove(e){
         }
         RedrawCanvasImage();
         DrawBrush();
-    } else if(currentTool === 'eraser' && dragging && usingBrush){
-        // Throw away brush drawings that occur outside of the canvas
-        if(loc.x > 0 && loc.x < canvasWidth && loc.y > 0 && loc.y < canvasHeight){
-            AddBrushPoint(loc.x, loc.y, true);
-        }
-        RedrawCanvasImage();
-        EraserBrush();
     } else {
         if(dragging){
             RedrawCanvasImage();
