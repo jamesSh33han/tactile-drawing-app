@@ -7,15 +7,16 @@ let canvas;
 let ctx;
 let savedImageData;
 
-// Stores whether I'm currently dragging the mouse
+// Initialize variables for line color, fill color, and a variable to indicate if the mouse is currently dragging
 let dragging = false;
 let strokeColor = 'black';
 let fillColor = 'black';
 // Set initial line width to 2
 let line_Width = 6;
 let polygonSides = 6;
-// Tool currently using
+// Define Tool we are urrently using & an array to hold current tool info
 let currentTool = 'brush';
+var clickTool = new Array();
 let canvasWidth = 1625;
 let canvasHeight = 940;
 
@@ -178,6 +179,31 @@ function DrawBrush(){
         ctx.closePath();
         ctx.stroke();
     }
+}
+
+function eraserBrush() {
+    let canvasImage = document.getElementById("my-canvas");
+    context = canvas.getContext('2d');
+    context.save();
+    let newColor = 'white';
+    //let newFill = 'white';
+    context.strokeStyle = newColor;
+    //ctx.fillStyle = newFill;
+    for(let i = 1; i < brushXPoints.length; i++){
+        context.beginPath();
+ 
+        // Check if the mouse button was down at this point
+        // and if so continue drawing
+        if(brushDownPos[i]){
+            context.moveTo(brushXPoints[i-1], brushYPoints[i-1]);
+        } else {
+            context.moveTo(brushXPoints[i]-1, brushYPoints[i]);
+        }
+        context.lineTo(brushXPoints[i], brushYPoints[i]);
+        context.closePath();
+        context.stroke();
+    }
+    context.restore();
 }
  
 function ReactToMouseDown(e){
