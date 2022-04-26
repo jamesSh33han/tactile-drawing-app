@@ -16,7 +16,6 @@ let line_Width = 6;
 let polygonSides = 6;
 // Define Tool we are urrently using & an array to hold current tool info
 let currentTool = 'brush';
-var clickTool = new Array();
 let canvasWidth = 1625;
 let canvasHeight = 940;
 
@@ -75,8 +74,10 @@ document.addEventListener('DOMContentLoaded', setupCanvas);
 function setupCanvas(){
     // Get reference to canvas element
     canvas = document.getElementById('my-canvas');
+    canvas2 = document.getElementById('my-canvas');
     // Get methods for manipulating the canvas
     ctx = canvas.getContext('2d');
+    ctx2 = canvas.getContext('2d');
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = line_Width;
     // Execute ReactToMouseDown when the mouse is clicked
@@ -180,31 +181,13 @@ function DrawBrush(){
         ctx.stroke();
     }
 }
-
-function eraserBrush() {
-    let canvasImage = document.getElementById("my-canvas");
-    context = canvas.getContext('2d');
-    context.save();
-    let newColor = 'white';
-    //let newFill = 'white';
-    context.strokeStyle = newColor;
-    //ctx.fillStyle = newFill;
-    for(let i = 1; i < brushXPoints.length; i++){
-        context.beginPath();
- 
-        // Check if the mouse button was down at this point
-        // and if so continue drawing
-        if(brushDownPos[i]){
-            context.moveTo(brushXPoints[i-1], brushYPoints[i-1]);
-        } else {
-            context.moveTo(brushXPoints[i]-1, brushYPoints[i]);
-        }
-        context.lineTo(brushXPoints[i], brushYPoints[i]);
-        context.closePath();
-        context.stroke();
-    }
-    context.restore();
+function erase() {
+    ctx.save();
+    ctx2.strokeStyle = 'white';
+    ctx.drawImage(canvasImage,0,0);
+    ctx.restore();
 }
+//const erase = () => ctx.globalCompositeOperation = 'destination-out'
  
 function ReactToMouseDown(e){
     // Change the mouse pointer to a crosshair
