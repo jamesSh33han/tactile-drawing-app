@@ -21,7 +21,6 @@ let savedImageData;
 
 // File system access API
 let fileHandle;
-
 // Initialize variables for line color, fill color, and a variable to indicate if the mouse is currently dragging
 let dragging = false;
 let strokeColor;
@@ -45,6 +44,9 @@ let brushDownPos = new Array();
 var labels = [ "Thick", "Medium", "Thin"];
 // Initialize an index value
 var index = 0;
+// Initialize variables for setBrush()
+var brushes = {};
+brushes.size = 6;
 
 /**
  * Defines the left, top, width, and height values for the webpage
@@ -185,8 +187,8 @@ function UpdateRubberbandSizeData(loc){
 }
 
 function drawRubberbandShape(loc){
-    ctx.strokeStyle = brushes.strokeColor;
-    ctx.fillStyle = brushes.fillColor;
+    //ctx.strokeStyle = brushes.strokeColor;
+    //ctx.fillStyle = brushes.fillColor;
     if(currentTool === "brush"){
         // Create paint brush
         DrawBrush();
@@ -234,9 +236,9 @@ function AddBrushPoint(x, y, mouseDown){
 function DrawBrush(){
     for(let i = 1; i < brushXPoints.length; i++){
         ctx.beginPath();
-        ctx.strokeStyle = brushes.strokeColor;
-        ctx.fillColor = brushes.fillColor;
-        ctx.lineWidth = brushes.size;
+        //ctx.strokeStyle = brushes.strokeColor;
+        //ctx.fillColor = brushes.fillColor;
+        //ctx.lineWidth = brushes.size;
  
         // Check if the mouse button was down at this point
         // and if so continue drawing
@@ -464,21 +466,19 @@ async function GetFile() {
     ReadImage(file);
 }
 
-var brushes = {};
-brushes.size = 6;
 function setBrush(type) {
     switch (type) {
       case 'brush':
-        brushes.fillColor = 'black';
-        brushes.strokeColor = 'black';
-        brushes.size = 6;
-        currentTool = 'brush';
+        ctx.fillColor = 'black';
+        ctx.strokeColor = 'black';
+        let currentTool = 'brush';
         break;
       case 'eraser':
-        brushes.fillColor = 'white';
-        brushes.strokeColor = 'white';
-        brushes.size = 8;
+        let canvasImage = document.getElementById("my-canvas");
+        ctx.fillColor = 'white';
+        ctx.strokeColor = 'white';
         currentTool = 'eraser';
+        ctx.drawImage(canvasImage,0,0);
         break;
     }
 }
