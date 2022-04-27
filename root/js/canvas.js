@@ -25,7 +25,7 @@ let fileHandle;
 // Initialize variables for line color, fill color, and a variable to indicate if the mouse is currently dragging
 let dragging = false;
 let strokeColor;
-let fillColor ;
+let fillColor;
 // Set initial line width to 6
 let line_Width = 6;
 let polygonSides = 6;
@@ -185,9 +185,12 @@ function UpdateRubberbandSizeData(loc){
 }
 
 function drawRubberbandShape(loc){
-    //ctx.strokeStyle = strokeColor;
-    //ctx.fillStyle = fillColor;
+    ctx.strokeStyle = brushes.strokeColor;
+    ctx.fillStyle = brushes.fillColor;
     if(currentTool === "brush"){
+        // Create paint brush
+        DrawBrush();
+    } else if(currentTool === "eraser"){
         // Create paint brush
         DrawBrush();
     }
@@ -231,6 +234,9 @@ function AddBrushPoint(x, y, mouseDown){
 function DrawBrush(){
     for(let i = 1; i < brushXPoints.length; i++){
         ctx.beginPath();
+        ctx.strokeStyle = brushes.strokeColor;
+        ctx.fillColor = brushes.fillColor;
+        ctx.lineWidth = brushes.size;
  
         // Check if the mouse button was down at this point
         // and if so continue drawing
@@ -271,6 +277,9 @@ function ReactToMouseDown(e){
     if(currentTool === 'brush'){
         usingBrush = true;
         AddBrushPoint(loc.x, loc.y);
+    } else if (currentTool === 'eraser'){
+        usingBrush = true;
+        AddBrushPoint(loc.x, loc.y);
     }
 }
 
@@ -286,7 +295,7 @@ function ReactToMouseMove(e){
     loc = GetMousePosition(e.clientX, e.clientY);
 
     // If using either brush tool and dragging the mouse store each point
-    if(currentTool === 'brush' && dragging && usingBrush){
+    if((currentTool === 'brush' || 'eraser') && dragging && usingBrush){
         // Throw away brush drawings that occur outside of the canvas
         if(loc.x > 0 && loc.x < canvasWidth && loc.y > 0 && loc.y < canvasHeight){
             AddBrushPoint(loc.x, loc.y, true);
@@ -455,8 +464,25 @@ async function GetFile() {
     ReadImage(file);
 }
 
-let index2 = 0;
-var tools = ["brush", "eraser"]
+var brushes = {};
+brushes.size = 6;
+function setBrush(type) {
+    switch (type) {
+      case 'brush':
+        brushes.fillColor = 'black';
+        brushes.strokeColor = 'black';
+        brushes.size = 6;
+        currentTool = 'brush';
+        break;
+      case 'eraser':
+        brushes.fillColor = 'white';
+        brushes.strokeColor = 'white';
+        brushes.size = 8;
+        currentTool = 'eraser';
+        break;
+    }
+}
+
 /**
  * Erase()
  * 
@@ -464,22 +490,11 @@ var tools = ["brush", "eraser"]
  * @since 1.0.0
  */
 function Erase() {
-    index2++;
-    if (index2 == tools.length) {
-        index2 = 0;
-    } else if (tools[index2] == "brush") {
-        strokeColor = 'black';
-        fillColor = 'black';
-        ctx.strokeStyle = strokeColor;
-        ctx.fillStyle = fillColor;
-    } else if (tools[index2] == "eraser") {
-        strokeColor = 'white';
-        fillColor = 'white';
-        ctx.beginPath();
-        ctx.strokeStyle = strokeColor;
-        ctx.fillStyle = fillColor;
-    }
-    //ctx.globalCompositeOperation = 'destination-out';
+    setBrush('eraser');
+}
+
+function Draw() {
+    setBrush('brush');
 }
 
 /**
