@@ -1,20 +1,32 @@
-// InTact Sketchpad Drawing Application using HTML, JavaScript, and CSS
-// JJ, Owen, Hanah, Ran
-// Created November 3rd, 2021
+/**
+ * inTACT Digital Sketchpad Application
+ * A joint collaboration between E.A.S.Y LLC & the UVM SEED Program
+ * 
+ * This Application was developed to be used in conjunction with the inTACT Tactile Sketchpad created by E.A.S.Y. LLC and Wacom 
+ * Digitizing Technology. The application allows a tactile image that was drawn on the sketchpad surface to be digitally recorded. 
+ * The user can manipulate the digital image through included editing commands such as toggling line thickness, mirroring the image, 
+ * or translating the image. The digital image can be saved and downloaded to the users personal computer, where it can then be shared 
+ * via the internet or sent to the inTACT Printer, which is able to print the digital image in the original tactile format.
+ * 
+ * @link https://github.com/jamesSh33han/tactile-drawing-app
+ * @link https://www.easytactilegraphics.com/
+ * @author James Sheehan
+ * @since 9.22.21
+ */
 
-// Using Canvas API
+// Initialize Canvas API
 let canvas;
 let ctx;
 let savedImageData;
 
 // Initialize variables for line color, fill color, and a variable to indicate if the mouse is currently dragging
 let dragging = false;
-let strokeColor = 'black';
-let fillColor = 'black';
-// Set initial line width to 2
+let strokeColor;
+let fillColor ;
+// Set initial line width to 6
 let line_Width = 6;
 let polygonSides = 6;
-// Define Tool we are urrently using & an array to hold current tool info
+// Define Tool we are urrently using
 let currentTool = 'brush';
 let canvasWidth = 1625;
 let canvasHeight = 940;
@@ -26,9 +38,15 @@ let brushXPoints = new Array();
 let brushYPoints = new Array();
 // Stores whether mouse is down
 let brushDownPos = new Array();
+// Defining labels to represent different line thickness options
+var labels = [ "Thick", "Medium", "Thin"];
+// Initialize an index value
+var index = 0;
 
-// Stores size data used to create rubber band shapes
-// that will redraw as the user moves the mouse
+/**
+ * Defines the left, top, width, and height values for the webpage
+ * @access private
+ */
 class ShapeBoundingBox{
     constructor(left, top, width, height) {
         this.left = left;
@@ -38,7 +56,10 @@ class ShapeBoundingBox{
     }
 }
 
-// Holds x & y position where clicked
+/**
+ * Holds the x & y location of the mouse as it is held down
+ * @access private
+ */
 class MouseDownPos{
     constructor(x,y) {
         this.x = x,
@@ -46,7 +67,10 @@ class MouseDownPos{
     }
 }
 
-// Holds x & y location of the mouse
+/**
+ * Holds the x & y location of the mouse
+ * @access private
+ */
 class Location{
     constructor(x,y) {
         this.x = x,
@@ -54,13 +78,17 @@ class Location{
     }
 }
 
-// Holds x & y polygon point values
+/**
+ * Holds the x & y polygon point values
+ * @access private
+ */
 class PolygonPoint{
     constructor(x,y) {
         this.x = x,
         this.y = y;
     }
 }
+
 // Stores top left x & y and size of rubber band box 
 let shapeBoundingBox = new ShapeBoundingBox(0,0,0,0);
 // Holds x & y position where clicked
@@ -68,27 +96,43 @@ let mousedown = new MouseDownPos(0,0);
 // Holds x & y location of the mouse
 let loc = new Location(0,0);
 
-// Call for our function to execute when page is loaded
+// Call for our function to execute when webpage is loaded
 document.addEventListener('DOMContentLoaded', setupCanvas);
 
+/**
+ * setupCanvas()
+ * 
+ * creates reference variables for the canvas element and methods to manipulate the canvas,
+ * creates listeners to handle mouse events that allow the user to draw on the canvas with the cursor
+ * @since 1.0.0
+ * 
+ * @param {"mousedown"} ReactToMouseDown Executes when the mouse is clicked down (starts drawing)
+ * @param {"mousemove"} ReactToMouseMove Executes when the mouse is moved (after "mousedown" executes, mouse is continually drawing)
+ * @param {"mouseup"} ReactToMouseUp Execute when the mouse is lifted up (stops drawing)
+ */
 function setupCanvas(){
+    strokeColor = 'black';
+    fillColor = 'black';
     // Get reference to canvas element
     canvas = document.getElementById('my-canvas');
-    canvas2 = document.getElementById('my-canvas');
     // Get methods for manipulating the canvas
     ctx = canvas.getContext('2d');
-    ctx2 = canvas.getContext('2d');
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = line_Width;
-    // Execute ReactToMouseDown when the mouse is clicked
     canvas.addEventListener("mousedown", ReactToMouseDown);
-    // Execute ReactToMouseMove when the mouse is clicked
     canvas.addEventListener("mousemove", ReactToMouseMove);
-    // Execute ReactToMouseUp when the mouse is clicked
     canvas.addEventListener("mouseup", ReactToMouseUp);
 }
 
-// Returns mouse x & y position based on canvas position in page
+/**
+ * GetMousePosition(x,y)
+ * 
+ * Returns mouse x & y position on the canvas based on the canvas position in the webpage
+ * @since 1.0.0
+ * 
+ * @param {int} x mouse x-coordinate in the canvas
+ * @param {int} y mouse y-coordinate in the canvas
+ */
 function GetMousePosition(x,y){
     // Get canvas size and position in web page
     let canvasSizeData = canvas.getBoundingClientRect();
@@ -138,8 +182,8 @@ function UpdateRubberbandSizeData(loc){
 }
 
 function drawRubberbandShape(loc){
-    ctx.strokeStyle = strokeColor;
-    ctx.fillStyle = fillColor;
+    //ctx.strokeStyle = strokeColor;
+    //ctx.fillStyle = fillColor;
     if(currentTool === "brush"){
         // Create paint brush
         DrawBrush();
@@ -155,8 +199,17 @@ function UpdateRubberbandOnMove(loc){
     drawRubberbandShape(loc);
 }
  
-// Store each point as the mouse moves and whether the mouse
-// button is currently being dragged
+/**
+ * AddBrushPoint(x,y, mouseDown)
+ * 
+ * Adds x & y coordinate data for each point as the mouse moves in the brushXPoints[] & brushYPoints[] arrays
+ * Stores a true value that the mouse is currently down in the brushDownPos[] array
+ * @since 1.0.0
+ * 
+ * @param {int} x mouse x-coordinate in the canvas
+ * @param {int} y mouse y-coordinate in the canvas
+ * @param {boolean} mouseDown represents if the mouse is currently down or not
+ */
 function AddBrushPoint(x, y, mouseDown){
     brushXPoints.push(x);
     brushYPoints.push(y);
@@ -164,7 +217,14 @@ function AddBrushPoint(x, y, mouseDown){
     brushDownPos.push(mouseDown);
 }
  
-// Cycle through all brush points and connect them with lines
+/**
+ * DrawBrush()
+ * 
+ * For each value in the brushXPoints[] array, check the corresponding index of brushDownPos[]
+ * If there exists a value at that index of brushDownPos[], the mouse button was down at that point, and we move from the
+ * point represented by ctx.beginPath() to the point stored in brushXPoints[] & brushYPoints[] at that index.
+ * @since 1.0.0
+ */
 function DrawBrush(){
     for(let i = 1; i < brushXPoints.length; i++){
         ctx.beginPath();
@@ -181,14 +241,16 @@ function DrawBrush(){
         ctx.stroke();
     }
 }
-function erase() {
-    ctx.save();
-    ctx2.strokeStyle = 'white';
-    ctx.drawImage(canvasImage,0,0);
-    ctx.restore();
-}
-//const erase = () => ctx.globalCompositeOperation = 'destination-out'
  
+/**
+ * ReactToMouseDown(e)
+ * 
+ * Retrieves the mouse x & y position when clicked and stores when the mouse is being held down
+ * If the current tool is set to brush and the mouse is being held down, stores the x & y position in an array
+ * @since 1.0.0
+ * 
+ * @param {event} e GetMousePosition() event, retreives the mouse x & y position
+ */
 function ReactToMouseDown(e){
     // Change the mouse pointer to a crosshair
     canvas.style.cursor = "crosshair";
@@ -202,18 +264,25 @@ function ReactToMouseDown(e){
     // Store that yes the mouse is being held down
     dragging = true;
 
-    // Brush will store points in an array
+    // Both brushes will store points in an array
     if(currentTool === 'brush'){
         usingBrush = true;
         AddBrushPoint(loc.x, loc.y);
     }
 }
- 
+
+/**
+ * ReactToMouseMove(e)
+ * 
+ * If the brush tool is selected and the mouse event for dragging is true, store each x & y coordinate point location
+ * of the mouse as it moves. Any time the mouse moves outside of the canvas, the brush drawings are discarded before the canvas is redrawn
+ * @since 1.0.0
+ */
 function ReactToMouseMove(e){
     canvas.style.cursor = "crosshair";
     loc = GetMousePosition(e.clientX, e.clientY);
 
-    // If using brush tool and dragging store each point
+    // If using either brush tool and dragging the mouse store each point
     if(currentTool === 'brush' && dragging && usingBrush){
         // Throw away brush drawings that occur outside of the canvas
         if(loc.x > 0 && loc.x < canvasWidth && loc.y > 0 && loc.y < canvasHeight){
@@ -228,7 +297,16 @@ function ReactToMouseMove(e){
         }
     }
 };
- 
+
+/**
+ * ReactToMouseUp(e)
+ * 
+ * Enables the brush to stop drawing when the mouse is no longer being pressed down. 
+ * @since 1.0.0
+ * 
+ * @param {boolean} dragging is true when the mouse is pressed and held down. Is false when the mouse is lifted back up
+ * @param {boolean} usingBrush is true when the user is actively drawing on the canvas
+ */
 function ReactToMouseUp(e){
     canvas.style.cursor = "default";
     loc = GetMousePosition(e.clientX, e.clientY);
@@ -238,13 +316,20 @@ function ReactToMouseUp(e){
     usingBrush = false;
 }
 
-// Defining labels to represent line thickness and the current index value
-var labels = [ "Thick", "Medium", "Thin"];
-var index = 0;
-// Defining function changeThickness: when clicked will toggle between three predefined line thicknesses (Initial, Thin, Thick)
-// Utilizes artyom to verbally alert the user to which slider option they have currently selected
-// ----- BUG: currently when changing to a thicker line thickness every line on the canvas gets updated -----
-function changeThickness() {
+/**
+ * ChangeThickness()
+ * 
+ * when clicked will toggle between three predefined line thicknesses (Initial, Thin, Thick)
+ * @since 1.0.0
+ * 
+ * @param {ctx.lineWidth} Thick Sets line thickness = 6
+ * @param {ctx.lineWidth} Medium Sets line thickness = 2
+ * @param {ctx.lineWidth} Thin Sets line thickness = 0.5
+ * 
+ * ------- **** BUG **** --------
+ * when toggling from the "Thin" line back to the "Thick" line, every line that has been previously drawn on the canvas also gets toggled
+ */
+function ChangeThickness() {
     index++;
     if (index == labels.length) {
         index = 0;
@@ -264,23 +349,42 @@ function changeThickness() {
     }
 }
 
-// Function to allow us to complete mirror transformations using the current canvas image
-// Can mirror an image horizontally, vertically, or both
-// this function is called in both the flipVertically() & flipHorizontally()
+/**
+ * mirrorImage(ctx, image, x = 0, y = 0, horizontal = false, vertical = false)
+ * 
+ * Function to allow us to complete mirror transformations using the current canvas image. 
+ * Can mirror a stored canvas image horizontally, vertically, or both. Returns the canvas to its original state
+ * with both the original & translated drawings.
+ * @since 1.0.0
+ * 
+ * @param {canvas.getContext('2d')} ctx retrieve state of drawing methods from original drawing before translation
+ * @param {canvas} image canvas object that contains the original drawing before transformation
+ * @param {int} x coordinate of the x origin
+ * @param {int} y coordinate of the y origin
+ * @param {boolean} horizontal sets the direction of the x axis
+ * @param {boolean} vertical sets the direction of the y axis
+ */
 function mirrorImage(ctx, image, x = 0, y = 0, horizontal = false, vertical = false){
     ctx.save();  // save the current canvas state
     ctx.setTransform(
-        horizontal ? -1 : 1, 0, // set the direction of x axis
-        0, vertical ? -1 : 1,   // set the direction of y axis
-        x + (horizontal ? image.width : 0), // set the x origin
-        y + (vertical ? image.height : 0)   // set the y origin
+        horizontal ? -1 : 1, 0,
+        0, vertical ? -1 : 1,
+        x + (horizontal ? image.width : 0),
+        y + (vertical ? image.height : 0)
     );
     ctx.drawImage(image,0,0);
     ctx.restore(); // restore the state as it was when this function was called
 }
 
-// Function to mirror canvas drawing over the vertical axis
-function flipVertically() {
+/**
+ * FlipVertically()
+ * 
+ * Mirrors the current canvas drawing over the vertical axis of the webpage using mirrorImage()
+ * @since 1.0.0
+ * 
+ * @param {Canvas} canvasImage A new canvas object to store the original drawing before translation
+ */
+function FlipVertically() {
     let canvasImage = document.getElementById("my-canvas");
     // call mirrorImage() function above to transform canvas
     mirrorImage(ctx, canvasImage, 0, 0, false, true); // vertical mirror
@@ -288,8 +392,15 @@ function flipVertically() {
     artyom.say("Mirroring Vertically");
 }
 
-// Function to mirror canvas drawing over the horizontal axis
-function flipHorizontally() {
+/**
+ * FlipHorizontally()
+ * 
+ * Mirrors the current canvas drawing over the horizontal axis of the webpage using mirrorImage()
+ * @since 1.0.0
+ * 
+ * @param {Canvas} canvasImage A new canvas object to store the original drawing before translation
+ */
+function FlipHorizontally() {
     let canvasImage = document.getElementById("my-canvas");
     // call mirrorImage() function above to transform canvas
     mirrorImage(ctx, canvasImage, 0, 0, true, false); // horizontal mirror
@@ -297,16 +408,98 @@ function flipHorizontally() {
     artyom.say("Mirroring Horizontally");
 }
 
-// Function to clear the entire canvas element when called, verbally alerts the user to change in drawing
-function DeleteImage() {
+/**
+ * Upload()
+ * 
+ * Allows the user to select an existing .PNG file to upload onto the canvas. Once the file is selected, the file path is stored
+ * as a string in the filePath variable.
+ * @since 1.0.0
+ * 
+ * @param {String} filePath the file path of the desired file to upload
+ */
+function Upload(path) {
+    let img = document.createElement("img");
+    img.src = path;
+    img.addEventListener("load", () => {
+        for (let x = 10; x < 40; x += 30) {
+          ctx.drawImage(img, x, 10);
+        }
+    });
+}
+
+const pickerOpts = {
+    types: [
+      {
+        description: 'Images',
+        accept: {
+          'image/*': ['.png', '.gif', '.jpeg', '.jpg']
+        }
+      },
+    ],
+    excludeAcceptAllOption: true,
+    multiple: false
+};
+
+// create a reference for our file handle
+let fileHandle;
+
+async function getFile() {
+  // open file picker, destructure the one element returned array
+  [fileHandle] = await window.showOpenFilePicker(pickerOpts);
+  alert(fileHandle);
+  
+  
+}
+
+let index2 = 0;
+var tools = ["brush", "eraser"]
+/**
+ * Erase()
+ * 
+ * When selected, allows the user to erase previously drawn lines based on the mouses current location on the canvas
+ * @since 1.0.0
+ */
+function Erase() {
+    index2++;
+    if (index2 == tools.length) {
+        index2 = 0;
+    } else if (tools[index2] == "brush") {
+        strokeColor = 'black';
+        fillColor = 'black';
+        ctx.strokeStyle = strokeColor;
+        ctx.fillStyle = fillColor;
+    } else if (tools[index2] == "eraser") {
+        strokeColor = 'white';
+        fillColor = 'white';
+        ctx.beginPath();
+        ctx.strokeStyle = strokeColor;
+        ctx.fillStyle = fillColor;
+    }
+    //ctx.globalCompositeOperation = 'destination-out';
+}
+
+/**
+ * Delete()
+ * 
+ * Function to clear the entire canvas element when called, verbally alerts the user to change in drawing
+ * @since 1.0.0
+ */
+function Delete() {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); //clear html5 canvas
     document.location.reload();
     // using artyom to speak aloud
     artyom.say("Deleting Image");
 }
 
-// Function to download the current canvas object as a png image
-function downloadCanvasAsImage(){
+/**
+ * Download()
+ * 
+ * Downloads the current canvas object as a .PNG image in the users "downloads" directory
+ * @since 1.0.0
+ * 
+ * @return {XMLHttpRequest} A .PNG file that contains the current canvas image
+ */
+function Download(){
     let canvasImage = document.getElementById("my-canvas").toDataURL('image/png');
     // this can be used to download any image from webpage to local disk
     let xhr = new XMLHttpRequest();
@@ -325,9 +518,15 @@ function downloadCanvasAsImage(){
     artyom.say("Downloading Image");
 }
 
-// ------- **** NEEDS TO BE FIXED **** --------
-// Function to convert canvas image to SVG and output the result to the user
-// Utilizes svgcanvas.js & the creation of a new SVGCanvas()
+/**
+ * canvasToSVG()
+ * 
+ * Function to convert canvas image to SVG and output the result to the user. 
+ * Utilizes svgcanvas.js & the creation of a new SVGCanvas()
+ * @since 1.0.0
+ * 
+ * ------- **** BUG **** --------
+ */
 function canvasToSVG() {
     let canvasImage = document.getElementById("my-canvas");
     ctx.save();
@@ -336,12 +535,17 @@ function canvasToSVG() {
     canvasSVG = ctx.toDataURL("image/svg+xml");
 }
 
-// Function to translate canvas image to a user-specified point
-// ------- **** NEEDS TO BE FIXED **** --------
-// 1. when the function is called to translate the drawn image it does not translate 
-// exactly to the users input coordinates, rather a point close to the expected translation
-// - issue resides in the xPos and yPos calculation from the HTML body and canvas element
-function translateImage() {
+/**
+ * TranslateImage()
+ * 
+ * Function to translate canvas image to a user-specified point using an event listener
+ * @since 1.0.0
+ * 
+ * ------- **** BUG **** --------
+ * when the function is called to translate the drawn image it does not translate exactly to the users input coordinates, 
+ * but a point close to the expected translation
+ */
+function TranslateImage() {
     let translateCanvas = document.getElementById("my-canvas");
     let context = translateCanvas.getContext('2d');
 
@@ -364,44 +568,42 @@ function translateImage() {
     artyom.say("Translating Image");
 }
 
-// Function to act as a key listener
-// Will constantly keep track of the value associated with the most recent character key that was pressed
+/**
+ * Function to handle key press events. Will constantly keep track of the value associated with the most 
+ * recent character key that was pressed. 
+ * @since 1.0.0
+ * 
+ * The following characters are each mapped to a tactile button on the inTACT Sketchpad:
+ * F: if the F key is pressed (mapped to the bottom Wacom button) save and download the current canvas image
+ * G: if the G key is pressed (mapped to the 2nd from bottom Wacom button) delete the current canvas image
+ * H: if the H key is pressed (mapped to the 3rd from bottom Wacom button) toggle the line thickness from Thick to Medium to Thin
+ * J: if the J key is pressed (mapped to the 4th from bottom Wacom button) mirror the current image over the Vertical axis
+ * K: if the K key is pressed (mapped to the 5th from bottom Wacom button) mirror the current image over the Horizontal axis
+ * L: if the L key is pressed (mapped to the 6th from bottom Wacom button) translate the current image to the user-specified point
+ */
 document.onkeydown = function (e) {
     let keyCode = e.keyCode;
     let chrCode = keyCode - 48 * Math.floor(keyCode / 48);
     // chr will constantly be updated to reflect the most recent key pressed
     let chr = String.fromCharCode((96 <= keyCode) ? chrCode: keyCode);
 
-    // if statements to reflect different wacom button key assignments
+    // If statements to reflect different wacom button key assignments
     if (chr == 'F') {
-        // if the F key is pressed (mapped to the bottom Wacom button) save and 
-        // download the current canvas image
         downloadCanvasAsImage();
     }
     else if (chr == 'G') {
-        // if the G key is pressed (mapped to the 2nd from bottom Wacom button)
-        // delete the current canvas image
         DeleteImage();
     }
     else if (chr == 'H') {
-        // if the H key is pressed (mapped to the 3rd from bottom Wacom button)
-        // toggle the line thickness from Thick to Medium to Thin
         changeThickness();
     }
     else if (chr == 'J') {
-        // if the J key is pressed (mapped to the 4th from bottom Wacom button)
-        // Mirror the current image over the Vertical axis
         flipVertically();
     }
     else if (chr == 'K') {
-        // if the K key is pressed (mapped to the 5th from bottom Wacom button)
-        // Mirror the current image over the Horizontal axis
         flipHorizontally();
     }
     else if (chr == 'L') {
-        // if the L key is pressed (mapped to the 6th from bottom Wacom button)
-        // Translate the current image to the user-specified point
         translateImage();
     }
-
 };

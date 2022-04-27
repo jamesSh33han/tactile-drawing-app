@@ -28,31 +28,31 @@
     <body>
         <div class="wrapper">
             <div class="menu">
-                <a href="#" class="menu__item" id="imageInput" onclick="canvasToSVG()" data-tooltip="Load File">
+                <a href="#" class="menu__item" id="imageInput" onclick="getFile()" data-tooltip="Load File">
                     <i class="material-icons">cloud_upload</i>
                 </a>
-                <a href="#" class="menu__item" id="save" onclick="downloadCanvasAsImage()" data-tooltip="Download">
+                <a href="#" class="menu__item" id="save" onclick="Download()" data-tooltip="Download">
                     <i class="material-icons">save_as</i>
                 </a>
                 <a href="#" class="menu__item menu__item--active" id="brush" data-tooltip="Draw">
                     <i class="material-icons">brush</i>
                 </a>
-                <a href="#" class="menu__item" id="eraser" onclick="erase()" data-tooltip="Eraser">
+                <a href="#" class="menu__item" id="eraser" onclick="Erase()" data-tooltip="Eraser">
                     <i class="material-icons">backspace</i>
                 </a>
-                <a href="./" class="menu__item" onclick="DeleteImage()" data-tooltip="Delete">
+                <a href="#" class="menu__item" onclick="Delete()" data-tooltip="Delete">
                     <i class="material-icons">delete</i>
                 </a>
-                <a href="#" class="menu__item" id="changeThickness" onclick="changeThickness()" data-tooltip="Toggle Line Thickness">
+                <a href="#" class="menu__item" id="changeThickness" onclick="ChangeThickness()" data-tooltip="Toggle Line Thickness">
                     <i class="material-icons">line_weight</i>
                 </a>
-                <a href="#" class="menu__item" id="transform" onclick="flipVertically()" data-tooltip="Vertical Mirror">
+                <a href="#" class="menu__item" id="transform" onclick="FlipVertically()" data-tooltip="Vertical Mirror">
                     <i class="material-icons">swap_vertical_circle</i>
                 </a>
-                <a href="#" class="menu__item" id="transform" onclick="flipHorizontally()" data-tooltip="Horizontal Mirror">
+                <a href="#" class="menu__item" id="transform" onclick="FlipHorizontally()" data-tooltip="Horizontal Mirror">
                     <i class="material-icons">swap_horizontal_circle</i>
                 </a>
-                <a href="#" class="menu__item" id="translate" onclick="translateImage()" data-tooltip="Translate Image">
+                <a href="#" class="menu__item" id="translate" onclick="TranslateImage()" data-tooltip="Translate Image">
                     <i class="material-icons">open_with</i>
                 </a>
             </div>
