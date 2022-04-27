@@ -19,6 +19,9 @@ let canvas;
 let ctx;
 let savedImageData;
 
+// File system access API
+let fileHandle;
+
 // Initialize variables for line color, fill color, and a variable to indicate if the mouse is currently dragging
 let dragging = false;
 let strokeColor;
@@ -409,46 +412,47 @@ function FlipHorizontally() {
 }
 
 /**
- * Upload()
+ * ReadImage()
  * 
- * Allows the user to select an existing .PNG file to upload onto the canvas. Once the file is selected, the file path is stored
- * as a string in the filePath variable.
+ * Reads a File provided by the user, then converts it to a data URL, and uses that data URL to display the image in an img element.
+ * This img element is then put onto the canvas using ctx.drawImage().
  * @since 1.0.0
  * 
- * @param {String} filePath the file path of the desired file to upload
+ * @param {Blob} file file object extracted from the file that was selected using the file picker in GetFile().
  */
-function Upload(path) {
+function ReadImage(file) {
     let img = document.createElement("img");
-    img.src = path;
+    // Check if the file is an image.
+    if (file.type && !file.type.startsWith('image/')) {
+      console.log('File is not an image.', file.type, file);
+      return;
+    }
+    const reader = new FileReader();
+    reader.addEventListener('load', (event) => {
+      img.src = event.target.result;
+    });
+    reader.readAsDataURL(file);
+    
     img.addEventListener("load", () => {
         for (let x = 10; x < 40; x += 30) {
-          ctx.drawImage(img, x, 10);
+            ctx.drawImage(img, x, 10);
         }
     });
 }
 
-const pickerOpts = {
-    types: [
-      {
-        description: 'Images',
-        accept: {
-          'image/*': ['.png', '.gif', '.jpeg', '.jpg']
-        }
-      },
-    ],
-    excludeAcceptAllOption: true,
-    multiple: false
-};
-
-// create a reference for our file handle
-let fileHandle;
-
-async function getFile() {
-  // open file picker, destructure the one element returned array
-  [fileHandle] = await window.showOpenFilePicker(pickerOpts);
-  alert(fileHandle);
-  
-  
+/**
+ * GetFile()
+ * 
+ * Utilizes the file system access API, opens the file picker and prompts the user to select an image file that they would like
+ * to be uploaded into the canvas. Calls ReadImage() on the selected file object to extract the image data and put it on the canvas.
+ * @since 1.0.0
+ */
+async function GetFile() {
+    [fileHandle] = await window.showOpenFilePicker();
+    // returning a file object, which contains a blob
+    const file = await fileHandle.getFile();
+    // reading image data from file object
+    ReadImage(file);
 }
 
 let index2 = 0;
