@@ -30,13 +30,8 @@
                 context.putImageData(savedImageData,0,0);
                 //ok lets serialize to SVG:
                 var myDrawing = context.getSerializedSvg(true); //true here will replace any named entities with numbered ones.
+                alert(myDrawing);
             }
-            let svg = myDrawing
-            let blob = new Blob([svg], {type: 'image/svg+xml'});
-            let url = URL.createObjectURL(blob);
-            let image = document.createElement('img');
-            image.src = url;
-
         </script>
 
     </head>
@@ -46,11 +41,8 @@
                 <a href="#" class="menu__item" id="imageInput" onclick="GetFile()" data-tooltip="Load File">
                     <i class="material-icons">cloud_upload</i>
                 </a>
-                <a href="#" class="menu__item" id="save" onclick="Download()" data-tooltip="Download">
+                <a href="#" class="menu__item dropbtn" id="save" onclick="DownloadJPEG()" data-tooltip="Download">
                     <i class="material-icons">save_as</i>
-                </a>
-                <a href="#" class="menu__item" id="svg" onclick="canvas2SVG()" data-tooltip="Convert to SVG">
-                    <i class="material-icons">save</i>
                 </a>
                 <a href="#" class="menu__item menu__item--active" id="brush" data-tooltip="Draw">
                     <i class="material-icons">brush</i>

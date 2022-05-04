@@ -107,9 +107,11 @@ function setupCanvas(){
     canvas = document.getElementById('my-canvas');
     // Get methods for manipulating the canvas
     ctx = canvas.getContext('2d');
-    // Set strokeStyle and lineWidth to defaults
+    // Set strokeStyle and lineWidth to defaults, create a default white canvas background
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = line_Width;
+    ctx.fillStyle = '#fff';  /// set white fill style
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     // Add listeners to handle mouse events (mouse clicked, mouse move, mouse released)
     canvas.addEventListener("mousedown", ReactToMouseDown);
     canvas.addEventListener("mousemove", ReactToMouseMove);
@@ -504,14 +506,14 @@ function Delete() {
 }
 
 /**
- * Download()
+ * DownloadPNG()
  * 
  * Downloads the current canvas object as a .PNG image in the users "downloads" directory
  * @since 1.0.0
  * 
  * @return {XMLHttpRequest} A .PNG file that contains the current canvas image
  */
-function Download(){
+function DownloadPNG() {
     let canvasImage = document.getElementById("my-canvas").toDataURL('image/png');
     // this can be used to download any image from webpage to local disk
     let xhr = new XMLHttpRequest();
@@ -527,7 +529,34 @@ function Download(){
     };
     xhr.open('GET', canvasImage); // This is to download the canvas Image
     xhr.send();
-    artyom.say("Downloading Image");
+    artyom.say("Downloading PNG Image");
+}
+
+/**
+ * DownloadJPEG()
+ * 
+ * Downloads the current canvas object as a .JPEG image in the users "downloads" directory
+ * @since 1.0.0
+ * 
+ * @return {XMLHttpRequest} A .PNG file that contains the current canvas image
+ */
+ function DownloadJPEG() {
+    let canvasImage = document.getElementById("my-canvas").toDataURL('image/jpeg');
+    // this can be used to download any image from webpage to local disk
+    let xhr = new XMLHttpRequest();
+    xhr.responseType = 'blob';
+    xhr.onload = function () {
+        let a = document.createElement('a');
+        a.href = window.URL.createObjectURL(xhr.response);
+        a.download = 'drawing.jpeg';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    };
+    xhr.open('GET', canvasImage); // This is to download the canvas Image
+    xhr.send();
+    artyom.say("Downloading JPEG Image");
 }
 
 /**
@@ -569,12 +598,14 @@ function TranslateImage() {
  * @since 1.0.0
  * 
  * The following characters are each mapped to a tactile button on the inTACT Sketchpad:
- * F: if the F key is pressed (mapped to the bottom Wacom button) save and download the current canvas image
- * G: if the G key is pressed (mapped to the 2nd from bottom Wacom button) delete the current canvas image
- * H: if the H key is pressed (mapped to the 3rd from bottom Wacom button) toggle the line thickness from Thick to Medium to Thin
- * J: if the J key is pressed (mapped to the 4th from bottom Wacom button) mirror the current image over the Vertical axis
- * K: if the K key is pressed (mapped to the 5th from bottom Wacom button) mirror the current image over the Horizontal axis
- * L: if the L key is pressed (mapped to the 6th from bottom Wacom button) translate the current image to the user-specified point
+ * S: if the S key is pressed we download the current canvas image as a .PNG
+ * D: if the D key is pressed we download the current canvas image as a .JPEG
+ * F: if the F key is pressed we undo the last line drawn on the canvas
+ * G: if the G key is pressed delete the entire canvas image
+ * H: if the H key is pressed toggle the line thickness from Thick to Medium to Thin
+ * J: if the J key is pressed mirror the current image over the Vertical axis
+ * K: if the K key is pressed mirror the current image over the Horizontal axis
+ * L: if the L key is pressed translate the current image to the user-specified point
  */
 document.onkeydown = function (e) {
     let keyCode = e.keyCode;
@@ -583,22 +614,28 @@ document.onkeydown = function (e) {
     let chr = String.fromCharCode((96 <= keyCode) ? chrCode: keyCode);
 
     // If statements to reflect different wacom button key assignments
-    if (chr == 'F') {
-        downloadCanvasAsImage();
+    if (chr == 'S') {
+        DownloadPNG();
+    }
+    else if (chr == 'D') {
+        DownloadJPEG();
+    }
+    else if (chr == 'F') {
+        Undo();
     }
     else if (chr == 'G') {
-        DeleteImage();
+        Delete();
     }
     else if (chr == 'H') {
-        changeThickness();
+        ChangeThickness();
     }
     else if (chr == 'J') {
-        flipVertically();
+        FlipVertically();
     }
     else if (chr == 'K') {
-        flipHorizontally();
+        FlipHorizontally();
     }
     else if (chr == 'L') {
-        translateImage();
+        TranslateImage()
     }
 };
