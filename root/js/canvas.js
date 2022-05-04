@@ -14,42 +14,34 @@
  * @since 9.22.21
  */
 
-// Initialize Canvas API
+// Initialize Canvas & File system access API
 let canvas;
 let ctx;
 let savedImageData;
-
-// File system access API
 let fileHandle;
-// Initialize variables for line color, fill color, and a variable to indicate if the mouse is currently dragging
-let dragging = false;
-let strokeColor;
-let fillColor;
-// Set initial line width to 6
-let line_Width = 6;
-let polygonSides = 6;
-// Define Tool we are urrently using
-let currentTool = 'brush';
-let canvasWidth = 1625;
-let canvasHeight = 940;
 
-// Stores whether I'm currently using brush
-let usingBrush = false;
-// Stores line x & ys used to make brush lines
-let brushXPoints = new Array();
-let brushYPoints = new Array();
-// Stores whether mouse is down
-let brushDownPos = new Array();
-// Defining labels to represent different line thickness options
-var labels = [ "Thick", "Medium", "Thin"];
-// Initialize an index value
-var index = 0;
-// Initialize variables for setBrush()
-var brushes = {};
-brushes.size = 6;
+// Initialize drawing variables
+let dragging = false; // Stores current mouse drawing state
+let strokeColor = 'black'; // line color
+let fillColor = 'black'; // fill color
+let line_Width = 6; // Set initial line width to 6
+let currentTool = 'brush'; // Define Tool we are urrently using
+let canvasWidth = 1625; // canvas width
+let canvasHeight = 940; // canvas height
+
+let usingBrush = false; // Stores whether I'm currently using brush
+let brushXPoints = new Array(); // Stores line x points after 'mousedown' event
+let brushYPoints = new Array(); // Stores line y points after 'mousedown' event
+let brushDownPos = new Array(); // Stores whether mouse is down or not
+
+var labels = [ "Thick", "Medium", "Thin"]; // line thickness options
+var index = 0; // Initialize an index value
+let restore_array = []; // Array to hold most recently drawn line path for undo
+let ind = -1; // Initialize an index value for undo function
 
 /**
- * Defines the left, top, width, and height values for the webpage
+ * Simulate rubber band effect when drawing shapes. Allows you to move image placement before 
+ * the mouse click is released
  * @access private
  */
 class ShapeBoundingBox{
@@ -62,7 +54,7 @@ class ShapeBoundingBox{
 }
 
 /**
- * Holds the x & y location of the mouse as it is held down
+ * holds the x & y location of the mouse as it is clicked down
  * @access private
  */
 class MouseDownPos{
@@ -84,7 +76,7 @@ class Location{
 }
 
 /**
- * Holds the x & y polygon point values
+ * Holds the x & y polygon point values for shapes we create
  * @access private
  */
 class PolygonPoint{
@@ -94,15 +86,10 @@ class PolygonPoint{
     }
 }
 
-// Stores top left x & y and size of rubber band box 
-let shapeBoundingBox = new ShapeBoundingBox(0,0,0,0);
-// Holds x & y position where clicked
-let mousedown = new MouseDownPos(0,0);
-// Holds x & y location of the mouse
-let loc = new Location(0,0);
-
-// Call for our function to execute when webpage is loaded
-document.addEventListener('DOMContentLoaded', setupCanvas);
+let shapeBoundingBox = new ShapeBoundingBox(0,0,0,0); // Holds shape bounding box coordinates
+let mousedown = new MouseDownPos(0,0); // Holds x & y position of where the mouse was clicked
+let loc = new Location(0,0); // Holds x & y location of the mouse as it moves around the screen
+document.addEventListener('DOMContentLoaded', setupCanvas); // Call for our function to execute when webpage is loaded
 
 /**
  * setupCanvas()
@@ -116,17 +103,32 @@ document.addEventListener('DOMContentLoaded', setupCanvas);
  * @param {"mouseup"} ReactToMouseUp Execute when the mouse is lifted up (stops drawing)
  */
 function setupCanvas(){
-    strokeColor = 'black';
-    fillColor = 'black';
     // Get reference to canvas element
     canvas = document.getElementById('my-canvas');
     // Get methods for manipulating the canvas
     ctx = canvas.getContext('2d');
+    // Set strokeStyle and lineWidth to defaults
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = line_Width;
+    // Add listeners to handle mouse events (mouse clicked, mouse move, mouse released)
     canvas.addEventListener("mousedown", ReactToMouseDown);
     canvas.addEventListener("mousemove", ReactToMouseMove);
     canvas.addEventListener("mouseup", ReactToMouseUp);
+}
+
+// Function to keep track of the current tool selected
+function ChangeTool(toolClicked) {
+    document.getElementById("imageInput").className = "menu__item";
+    document.getElementById("save").className = "menu__item";
+    document.getElementById("brush").className = "menu__item";
+    document.getElementById("undo").className = "menu__item";
+    document.getElementById("delete").className = "menu__item";
+    document.getElementById("changeThickness").className = "menu__item";
+    document.getElementById("verticalTransform").className = "menu__item";
+    document.getElementById("horizontalTransform").className = "menu__item";
+    document.getElementById("translate").className = "menu__item";
+    document.getElementById(toolClicked).className = "menu__item menu__item--active";
+    currentTool = toolClicked;
 }
 
 /**
@@ -146,16 +148,19 @@ function GetMousePosition(x,y){
       };
 }
  
+// Save canvas Image data
 function SaveCanvasImage(){
     // Save image
     savedImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
 }
  
+// Redraw saved Image data onto the canvas
 function RedrawCanvasImage(){
     // Restore image
     ctx.putImageData(savedImageData,0,0);
 }
 
+// Update size of rubberband from current mouse position
 function UpdateRubberbandSizeData(loc){
     // Height & width are the difference between were clicked
     // and current mouse position
@@ -186,18 +191,17 @@ function UpdateRubberbandSizeData(loc){
     }
 }
 
+// Draw rubberband shape *** I think I can delete this function
 function drawRubberbandShape(loc){
-    //ctx.strokeStyle = brushes.strokeColor;
-    //ctx.fillStyle = brushes.fillColor;
+    ctx.strokeStyle = strokeColor;
+    ctx.fillStyle = fillColor;
     if(currentTool === "brush"){
-        // Create paint brush
-        DrawBrush();
-    } else if(currentTool === "eraser"){
         // Create paint brush
         DrawBrush();
     }
 }
 
+// Update rubberband on move
 function UpdateRubberbandOnMove(loc){
     // Stores changing height, width, x & y position of most 
     // top left point being either the click or mouse location
@@ -236,9 +240,6 @@ function AddBrushPoint(x, y, mouseDown){
 function DrawBrush(){
     for(let i = 1; i < brushXPoints.length; i++){
         ctx.beginPath();
-        //ctx.strokeStyle = brushes.strokeColor;
-        //ctx.fillColor = brushes.fillColor;
-        //ctx.lineWidth = brushes.size;
  
         // Check if the mouse button was down at this point
         // and if so continue drawing
@@ -279,9 +280,6 @@ function ReactToMouseDown(e){
     if(currentTool === 'brush'){
         usingBrush = true;
         AddBrushPoint(loc.x, loc.y);
-    } else if (currentTool === 'eraser'){
-        usingBrush = true;
-        AddBrushPoint(loc.x, loc.y);
     }
 }
 
@@ -297,7 +295,7 @@ function ReactToMouseMove(e){
     loc = GetMousePosition(e.clientX, e.clientY);
 
     // If using either brush tool and dragging the mouse store each point
-    if((currentTool === 'brush' || 'eraser') && dragging && usingBrush){
+    if((currentTool === 'brush') && dragging && usingBrush){
         // Throw away brush drawings that occur outside of the canvas
         if(loc.x > 0 && loc.x < canvasWidth && loc.y > 0 && loc.y < canvasHeight){
             AddBrushPoint(loc.x, loc.y, true);
@@ -328,6 +326,10 @@ function ReactToMouseUp(e){
     UpdateRubberbandOnMove(loc);
     dragging = false;
     usingBrush = false;
+
+    restore_array.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+    ind += 1;
+    
 }
 
 /**
@@ -466,35 +468,24 @@ async function GetFile() {
     ReadImage(file);
 }
 
-function setBrush(type) {
-    switch (type) {
-      case 'brush':
-        ctx.fillColor = 'black';
-        ctx.strokeColor = 'black';
-        let currentTool = 'brush';
-        break;
-      case 'eraser':
-        let canvasImage = document.getElementById("my-canvas");
-        ctx.fillColor = 'white';
-        ctx.strokeColor = 'white';
-        currentTool = 'eraser';
-        ctx.drawImage(canvasImage,0,0);
-        break;
-    }
-}
-
 /**
- * Erase()
+ * Undo()
  * 
- * When selected, allows the user to erase previously drawn lines based on the mouses current location on the canvas
+ * When selected, removes the last line that was drawn on the canvas
  * @since 1.0.0
  */
-function Erase() {
-    setBrush('eraser');
-}
-
-function Draw() {
-    setBrush('brush');
+function Undo() {
+    if ( ind <= 0 ) {
+        Delete();
+    } else {
+        ind -= 1;
+        restore_array.pop();
+        RedrawCanvasImage();
+        ctx.putImageData(restore_array[ind], 0, 0);
+        brushXPoints = new Array(); // Stores line x points after 'mousedown' event
+        brushYPoints = new Array(); // Stores line y points after 'mousedown' event
+        brushDownPos = new Array(); // Stores whether mouse is down or not
+    }
 }
 
 /**
@@ -508,6 +499,8 @@ function Delete() {
     document.location.reload();
     // using artyom to speak aloud
     artyom.say("Deleting Image");
+    restore_array = [];
+    ind = -1;
 }
 
 /**
@@ -535,23 +528,6 @@ function Download(){
     xhr.open('GET', canvasImage); // This is to download the canvas Image
     xhr.send();
     artyom.say("Downloading Image");
-}
-
-/**
- * canvasToSVG()
- * 
- * Function to convert canvas image to SVG and output the result to the user. 
- * Utilizes svgcanvas.js & the creation of a new SVGCanvas()
- * @since 1.0.0
- * 
- * ------- **** BUG **** --------
- */
-function canvasToSVG() {
-    let canvasImage = document.getElementById("my-canvas");
-    ctx.save();
-    ctx = new SVGCanvas("my-canvas");
-    ctx.drawImage(canvasImage);
-    canvasSVG = ctx.toDataURL("image/svg+xml");
 }
 
 /**

@@ -8,7 +8,7 @@
         <link href="https://cdn.jsdelivr.net/css-toggle-switch/latest/toggle-switch.css" rel="stylesheet" />
         <link rel="stylesheet" type="text/css" href="./css/menu.css">
         <script src="./js/canvas.js"></script>
-        <script src="./js/svgcanvas.js"></script>
+        <script src="./js/canvas2svg.js"></script>
         <script src="./js/voiceActions.js"></script>
         <script src="./js/artyom.window.min.js"></script>
         <script>
@@ -22,6 +22,22 @@
                 speed: 1 //talk a little slower than normal speed
             });
         </script>
+        <script>
+            function canvas2SVG() {
+                savedImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+                //make a mock canvas context using canvas2svg. We use a C2S namespace for less typing:
+                var context = new C2S(1625,940); //width, height of your desired svg file
+                context.putImageData(savedImageData,0,0);
+                //ok lets serialize to SVG:
+                var myDrawing = context.getSerializedSvg(true); //true here will replace any named entities with numbered ones.
+            }
+            let svg = myDrawing
+            let blob = new Blob([svg], {type: 'image/svg+xml'});
+            let url = URL.createObjectURL(blob);
+            let image = document.createElement('img');
+            image.src = url;
+
+        </script>
 
     </head>
     <body>
@@ -33,22 +49,25 @@
                 <a href="#" class="menu__item" id="save" onclick="Download()" data-tooltip="Download">
                     <i class="material-icons">save_as</i>
                 </a>
-                <a href="#" class="menu__item menu__item--active" id="brush" onclick="Draw()" data-tooltip="Draw">
+                <a href="#" class="menu__item" id="svg" onclick="canvas2SVG()" data-tooltip="Convert to SVG">
+                    <i class="material-icons">save</i>
+                </a>
+                <a href="#" class="menu__item menu__item--active" id="brush" data-tooltip="Draw">
                     <i class="material-icons">brush</i>
                 </a>
-                <a href="#" class="menu__item" id="erase" onclick="Erase()" data-tooltip="Eraser">
+                <a href="#" class="menu__item" id="undo" onclick="Undo()" data-tooltip="Undo">
                     <i class="material-icons">backspace</i>
                 </a>
-                <a href="#" class="menu__item" onclick="Delete()" data-tooltip="Delete">
+                <a href="#" class="menu__item" id="delete" onclick="Delete()" data-tooltip="Delete">
                     <i class="material-icons">delete</i>
                 </a>
                 <a href="#" class="menu__item" id="changeThickness" onclick="ChangeThickness()" data-tooltip="Toggle Line Thickness">
                     <i class="material-icons">line_weight</i>
                 </a>
-                <a href="#" class="menu__item" id="transform" onclick="FlipVertically()" data-tooltip="Vertical Mirror">
+                <a href="#" class="menu__item" id="verticalTransform" onclick="FlipVertically()" data-tooltip="Vertical Mirror">
                     <i class="material-icons">swap_vertical_circle</i>
                 </a>
-                <a href="#" class="menu__item" id="transform" onclick="FlipHorizontally()" data-tooltip="Horizontal Mirror">
+                <a href="#" class="menu__item" id="horizontalTransform" onclick="FlipHorizontally()" data-tooltip="Horizontal Mirror">
                     <i class="material-icons">swap_horizontal_circle</i>
                 </a>
                 <a href="#" class="menu__item" id="translate" onclick="TranslateImage()" data-tooltip="Translate Image">
