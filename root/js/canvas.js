@@ -111,7 +111,6 @@ function setupCanvas(){
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = line_Width;
     ctx.fillStyle = '#fff';  /// set white fill style
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
     // Add listeners to handle mouse events (mouse clicked, mouse move, mouse released)
     canvas.addEventListener("mousedown", ReactToMouseDown);
     canvas.addEventListener("mousemove", ReactToMouseMove);
@@ -487,6 +486,7 @@ function Undo() {
         brushXPoints = new Array(); // Stores line x points after 'mousedown' event
         brushYPoints = new Array(); // Stores line y points after 'mousedown' event
         brushDownPos = new Array(); // Stores whether mouse is down or not
+        artyom.say("Undo");
     }
 }
 
