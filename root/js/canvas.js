@@ -110,7 +110,6 @@ function setupCanvas(){
     // Set strokeStyle and lineWidth to defaults, create a default white canvas background
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = line_Width;
-    ctx.fillStyle = '#fff';  /// set white fill style
     // Add listeners to handle mouse events (mouse clicked, mouse move, mouse released)
     canvas.addEventListener("mousedown", ReactToMouseDown);
     canvas.addEventListener("mousemove", ReactToMouseMove);
@@ -541,6 +540,9 @@ function DownloadPNG() {
  * @return {XMLHttpRequest} A .PNG file that contains the current canvas image
  */
  function DownloadJPEG() {
+    SaveCanvasImage();
+    ctx.fillStyle = '#fff';  /// set white fill style
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     let canvasImage = document.getElementById("my-canvas").toDataURL('image/jpeg');
     // this can be used to download any image from webpage to local disk
     let xhr = new XMLHttpRequest();
@@ -557,6 +559,7 @@ function DownloadPNG() {
     xhr.open('GET', canvasImage); // This is to download the canvas Image
     xhr.send();
     artyom.say("Downloading JPEG Image");
+    RedrawCanvasImage();
 }
 
 /**
