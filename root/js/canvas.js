@@ -540,10 +540,7 @@ function DownloadPNG() {
  * @return {XMLHttpRequest} A .PNG file that contains the current canvas image
  */
  function DownloadJPEG() {
-    SaveCanvasImage();
-    ctx.fillStyle = '#fff';  /// set white fill style
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    let canvasImage = document.getElementById("my-canvas").toDataURL('image/jpeg');
+    let canvasImage = document.getElementById("my-canvas").toDataURL('image/png');
     // this can be used to download any image from webpage to local disk
     let xhr = new XMLHttpRequest();
     xhr.responseType = 'blob';
@@ -580,10 +577,9 @@ function TranslateImage() {
     const clicked = (e) => {
         context.save();
         translateCanvas.disabled=true; // this line is disabling the canvas from being clicked again
-        let rect = translateCanvas.getBoundingClientRect();
-        let xPos = e.clientX - rect.left;
-        let yPos = e.clientY - rect.top;
-        context.translate(xPos, yPos);
+        loc = GetMousePosition(e.clientX, e.clientY); // mouse position we wish to translate to
+        UpdateRubberbandOnMove(loc);
+        context.translate(loc.x, loc.y);
         context.drawImage(translateCanvas,0,0);
         context.restore(); // restore the state as it was when this function was called
 
