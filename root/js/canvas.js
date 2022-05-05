@@ -556,7 +556,6 @@ function DownloadPNG() {
     xhr.open('GET', canvasImage); // This is to download the canvas Image
     xhr.send();
     artyom.say("Downloading JPEG Image");
-    RedrawCanvasImage();
 }
 
 /**
@@ -579,7 +578,7 @@ function TranslateImage() {
         translateCanvas.disabled=true; // this line is disabling the canvas from being clicked again
         loc = GetMousePosition(e.clientX, e.clientY); // mouse position we wish to translate to
         UpdateRubberbandOnMove(loc);
-        context.translate(loc.x, loc.y);
+        context.translate(loc.x/2, loc.y/2);
         context.drawImage(translateCanvas,0,0);
         context.restore(); // restore the state as it was when this function was called
 
